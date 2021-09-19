@@ -9,19 +9,17 @@
 
 # Location of your glftpd.conf file. It will fully work only if
 # this path is both the real path and the CHROOTED path to your
-# glftpd dir. In other words: put your glftpd.conf inside 
+# glftpd dir. In other words: put your glftpd.conf inside
 # /glftpd/etc dir and make a symlink to i in /etc.
 glftpd_conf="/etc/glftpd.conf"
 
 ### CODE ###
 
-privpaths=`cat $glftpd_conf | grep privpath | grep "=STAFFPRE" | awk '{print $2}'`
+privpaths=$(cat $glftpd_conf | grep privpath | grep "=STAFFPRE" | awk '{print $2}')
 
 predirs=""
 for path in $privpaths; do
-	predirs="$predirs `basename $path`"
+	predirs="$predirs $(basename $path)"
 done
 echo $predirs
 exit 0
-
-   

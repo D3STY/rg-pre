@@ -1,8 +1,10 @@
-# eur0-pre-system
-GLFTPD Tools (Shell/C) to simplify handling of affil groups on a site
+# rg-pre
 
-Introduction
-~~~~~~~~~~~~
+# GLFTPD Tools (Shell/C) to simplify handling of affil groups on a site
+
+## Introduction
+
+```
 Here is a long-awaited public release of my preing system, version 1.0. I decided to release
 it publicly after a number of requests from different people. It features a set of scripts
 which enable you to configure them only once and after that all the changes are being done
@@ -14,7 +16,7 @@ of "pre-script" if you want :)
 The reason why I did this script was that I wanted something simple and yet functional. Something
 which will let the siteops add/remove affils while the scripter or people with the shell access
 are away. It's also quite comfortable that you don't need to go and change things through the shell
-whenever you want to make changes to your affils. It's not too complicated to set and use as 
+whenever you want to make changes to your affils. It's not too complicated to set and use as
 f00-pre and some other publicly available advanced pre systems (there are only a few of them).
 
 This script was meant in the beginning for a one-partition site, in other words a site where
@@ -34,17 +36,17 @@ which have only one section and you don't want to specify "mp3" all the time as 
 the pre. The section as it passed via the "pre" command isn't case-sensitive, it will accept
 both "site pre <dir> mp3" and "site pre <dir> MP3". However when you define sections in your
 pre.sh script, please use upper-case characters only (it's not related in any way to the sections
-you define in your glftpd.conf or zipscript config). 
+you define in your glftpd.conf or zipscript config).
 
 You can define a script for each section which will be executed right before the directoryis moved
 to its target destination on the site. This script will have to accept one parameter which is the
 full path to the pre dir (including the dir itself) as it appears on the site before the pre. This
 script can return some information which will be passed as "preing information" to the screen and
 to glftpd.log in order to be outputed by the sitebot later on. If the returned "preing information"
-is empty then section name is being outputed as preing information. I included two scripts for 
+is empty then section name is being outputed as preing information. I included two scripts for
 MP3 and MUSICVIDEOS which were written to work with dark0n3 zipscript-c/project-zs. They retrieve
 genre from mp3 and musicvideos releases and return it as a preing info. If you want to do something
-with the release, for example with mp3 release, you can write your own script, let's say 
+with the release, for example with mp3 release, you can write your own script, let's say
 "mymp3script.sh", do what you need there and in the end call the "getmp3preinfo.sh" from it,
 returning its result. This way it's totally flexible to add your own handling to preing releases
 in certain sections. For example you can set some imdb script for DIVX section and so on.
@@ -52,10 +54,9 @@ in certain sections. For example you can set some imdb script for DIVX section a
 By default siteops can't see pre dirs unless they are in the preing group. However there is a
 special private group called "STAFFPRE". If the siteops add themsevles to this group they will
 be able to see and enter the pre dirs.
+```
 
-
-Requirements before installing the system
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+## Requirements before installing the system
 
 1. Make sure the following linux/unix binaries are in your glftpd's bin:
    sed, echo, touch, chmod, pwd, grep, basename, date, mv, bash, dupediradd, find
@@ -69,36 +70,36 @@ Requirements before installing the system
 
 4. You must have a following private group in your glftpd.conf: STAFFPRE.
    You can add the following line to your glftpd.conf in order to have it:
-   privgroup       STAFFPRE                Staff[:space:]Viewable[:space:]Pres
+   privgroup STAFFPRE Staff[:space:]Viewable[:space:]Pres
 
 5. In your site the group names and group dir names should be the same from now
    on (case-sensitive). For example, if you did "site grpadd cDe" then you must
    also do in the future "site addaffil cDe" and "site delaffil cDe" and not
-   "site addaffil cde". 
+   "site addaffil cde".
 
 6. The real glftpd.conf must be located in your glftpd's etc dir, it must have 666
    permissions on it and there must be a symlink to it in /etc. For example, if
    your glftpd.conf is located on the box as /etc/glftpd.conf and your glftpd's
    etc path is /glftpd/etc you need to do the following (as root/sudo of course):
-   	cd /etc
-        chmod 666 glftpd.conf
-	mv glftpd.conf /glftpd/etc
-	ln -s /glftpd/etc/glftpd.conf glftpd.conf
+   cd /etc
+   chmod 666 glftpd.conf
+   mv glftpd.conf /glftpd/etc
+   ln -s /glftpd/etc/glftpd.conf glftpd.conf
 
-
-Recommended settings in glftpd.conf
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+## Recommended settings in glftpd.conf
 
 I recommend you to do the following in your glftpd.conf:
 
 1. Add a pre section to your stats sections (to the end of the stats sections
    block). For example you can add the following line if you have one big pre
    dir which contains all group dirs and its located under /site/PRE:
-   stat_section    PRE             /site/PRE/*             no
+   stat_section PRE /site/PRE/\* no
    If you have multiple pre dirs which contain group dirs then you can add a number
    of pre sections in a similar way to the one I wrote above.
 
 2. If you "big" pre dir is /site/PRE then set the following permissions:
+
+```
 	upload          /site/PRE/*/*                           *
 	makedir         /site/PRE/*/*                           *
 	rename          /site/PRE/*/*                           *
@@ -107,13 +108,13 @@ I recommend you to do the following in your glftpd.conf:
 	delete          /site/PRE/*/*                           *
 	creditloss      0       yes     /site/PRE/*/*           *
 	hideinwho       /site/PRE*                              !1 *
-	nodupecheck     /site/PRE/*  	
+	nodupecheck     /site/PRE/*
    If you path setting are different - use similar settings with the changes
    you need.
 
+```
 
-Installation
-~~~~~~~~~~~~
+## Installation
 
 1. Make sure you've read the "Requirements" and the "Recommended settngs" sections.
 
@@ -133,12 +134,13 @@ Installation
 
 6. Edit the config section (very carefully) in pre.sh script. Pay attention to all
    the notes and comments inside the config section. You will have to change the
-   following variables for sure: 'sitename' variable, 'allowdefaultsection' flag, 
+   following variables for sure: 'sitename' variable, 'allowdefaultsection' flag,
    'defaultsection' index, 'section_name/section_target_path/section_script_path'
    arrays. The explanations are in the comments above each variables.
 
 7. Add the following lines to the custom commands section in your glftpd.conf:
 
+```
 	site_cmd ADDAFFIL       EXEC            /bin/addaffil.sh
 	site_cmd DELAFFIL       EXEC            /bin/delaffil.sh
 	site_cmd LISTAFFILS     EXEC            /bin/listaffils.sh
@@ -146,59 +148,60 @@ Installation
 	custom-addaffil         1
 	custom-delaffil         1
 	custom-listaffils       !8 *
+```
 
 8. Now you set your sitebot. In this section (and the next one) I suppose you use
-   dark0n3's dZSbot.tcl. If not you will need to make simlar changes to your 
+   dark0n3's dZSbot.tcl. If not you will need to make simlar changes to your
    sitebot's tcl script. First of all, if you want to enable !<cmdpre>affils command
    on the irc channel (like !dsaffils). To have it like that you will need to add
    the following:
 
-   1. To your binds section add this line: 
-	bind pub -|- [set cmdpre]affils affils
+   1. To your binds section add this line:
+      bind pub -|- [set cmdpre]affils affils
 
    2. To your procedures section add the following procedure:
 
-	#################################################################################
-	# POST AFFILS                                                                   #
-	#################################################################################
-	proc affils {nick uhost hand chan args} {
- 	    global cmdpre sitename
-  	    set output [exec /glftpd/bin/listaffils.sh]
- 	    putserv "PRIVMSG $chan :-$sitename- \002(AFFILIATES)\002 - $output"
-	}
-	#################################################################################
-     You will need to edit this a bit if your glftpd's bin dir isn't /glftpd/bin and you
-     want the announce to look a bit different.
-   
+   #################################################################################
+
+   # POST AFFILS
+
+   #################################################################################
+   proc affils {nick uhost hand chan args} {
+   global cmdpre sitename
+   set output [exec /glftpd/bin/listaffils.sh]
+   putserv "PRIVMSG $chan :-$sitename- \002(AFFILIATES)\002 - $output"
+   }
+   #################################################################################
+   You will need to edit this a bit if your glftpd's bin dir isn't /glftpd/bin and you
+   want the announce to look a bit different.
+
    3. To your dZSbot.help - add the following line:
-	affils            shows affils list
+      affils shows affils list
 
 9. This is the last setting, to your sitebot's tcl script as well. You need it in order
-   to see the pres being announced on the sitechannel. This is what you need to add 
+   to see the pres being announced on the sitechannel. This is what you need to add
    to your dZSbot.tcl (or to make sure you have it already:
 
    1. The "msgtypes(RACE)" list should have "PRE" in it.
 
-   2. You need to have the following line: 
-	set disable(PRE)             0
-   
+   2. You need to have the following line:
+      set disable(PRE) 0
+
    3. In your announce variables section add this line:
-	set variables(PRE)         "%pf %user %group %files %mbytes %preinfo"
+      set variables(PRE) "%pf %user %group %files %mbytes %preinfo"
 
    4. In your announce messages section add this line (you can edit it the
       way you need, this one is the usual one I have on my sites):
-	set announce(PRE)          "-%sitename- \[PRE-RELEASE\] %bold==\] %group PRE \[==%bold %bold%release%bold - (%user@%group with %files files, %mbytesMB) - \[%preinfo\]"
+      set announce(PRE) "-%sitename- \[PRE-RELEASE\] %bold==\] %group PRE \[==%bold %bold%release%bold - (%user@%group with %files files, %mbytesMB) - \[%preinfo\]"
 
 You should be set now. Don't forget to save dZSbot.tcl and dZSbot.help files, to .rehash
 your sitebot and to re-login to the site. Do "site pre", "site addaffil", "site delaffil"
 to see their syntaxes and make sure things work. You can also do "site listaffils" and
 !<cmdpre>affils on the irc channel.
 
+## Usage example
 
-Usage example
-~~~~~~~~~~~~~
-
-Here is an example of how I added an affil, test preing with it and delete it 
+Here is an example of how I added an affil, test preing with it and delete it
 afterwards (This was done on a one-partitioned site, on a multi-partitioned site
 which has pre dirs on different partitions you will need to pass the second parameter
 both in "site addaffil" and in "site delaffil", the second parameter is the path where
@@ -208,6 +211,7 @@ to be in different pre dirs on different partitions):
 
 On the site:
 
+```
 site addaffil
 200- Syntax: SITE ADDAFFIL <group> [pre_dir_path]
 200 Command Successful.
@@ -235,7 +239,7 @@ site pre
 200- ,--------------------------------------------=
 200- | Usage: SITE PRE <dirname> <section>
 200- | Valid sections:
-200- | MP3 
+200- | MP3
 200- |
 200- | If you do not specify a section then
 200- | the release will be pre-ed to MP3.
@@ -249,13 +253,17 @@ site pre Tesing_-_Testing-2003-ABC
 200- [dS] Release Info:  [dS]
 200- [dS] Success! Release has been pre'd. [dS]
 200 Command Successful.
+```
 
 On the channel:
 
+```
 <_dS_> -dS- [PRE-RELEASE] ==] ABC PRE [== Tesing_-_Testing-2003-ABC - (eur0dance@ABC with 0 files, 0MB) - []
+```
 
 On the site again:
 
+```
 site delaffil ABC
 200- Removing ABC ...
 200- Trying to remove /site/PRE/ABC from the /etc/glftpd.conf file ...
@@ -263,10 +271,11 @@ site delaffil ABC
 200- Success! /site/PRE/ABC has been removed.
 200- Group ABC is NO LONGER affiled on this site!!
 200 Command Successful.
-
+```
 
 Postscriptum
-~~~~~~~~~~~~
+
+```
 
 Due to the fact that this is a first release of a long-existing pre-system there
 might be some minor things I've forgot, If you experience any problems or find
@@ -276,8 +285,9 @@ You will need to register and you can leave a message to 'eur0dance'.
 By the way, this is my official website, where I post my public scripts. Big thanks
 to Turranius for his wonderful scripting and website-admining job and for letting
 me use his website. You can find all my script in my section of scripts there.
-There are a number of scripts by Turranius himself and different guest scripters, 
+There are a number of scripts by Turranius himself and different guest scripters,
 ake sure you check them.
 
-Enjoy! I hope you will like this eur0-pre-system package and this readme wasn't 
+Enjoy! I hope you will like this eur0-pre-system package and this readme wasn't
 to long and it was clear enough.
+```

@@ -1,7 +1,7 @@
 #! /bin/bash
 #
 # A script to get the genre from musicvideos release before they are pre'ed
-# on a site using mvpack script by eur0dance. Ths scriptis  for dark0n3's 
+# on a site using mvpack script by eur0dance. Ths scriptis  for dark0n3's
 # zipscript-c/project-zs, done by eur0dance.
 # Version 1.0
 #
@@ -11,14 +11,13 @@
 
 sitename="RG"
 
-
 ### CODE ##
 
 genre="Unknown"
 cd $1
 for file in *.nfo; do
 	if [ $file != "*.nfo" ]; then
-		tempgenre=`/bin/getmvpreinfo "$1" "$file"`
+		tempgenre=$(/bin/getmvpreinfo "$1" "$file")
 		if [ $genre = "Unknown" ]; then
 			genre=$tempgenre
 		fi
@@ -26,5 +25,3 @@ for file in *.nfo; do
 done
 touch "[$sitename] - ( $genre ) - [$sitename]"
 echo "MVID - Genre: $genre"
-
-
