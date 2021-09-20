@@ -1,8 +1,3 @@
----
-title: 're-pre'
-disqus: hackmd
----
-
 rg-pre
 ===
 
