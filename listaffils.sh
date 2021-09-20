@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 glftpd_conf="/etc/glftpd.conf"
 
 privpaths=$(< $glftpd_conf grep privpath | awk '{print $2}')

@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 # Location of your glftpd.conf file, the path is CHROOTED to your glftpd dir.
 # In other words, if your glftpd dir is /glftpd then this path will probably be

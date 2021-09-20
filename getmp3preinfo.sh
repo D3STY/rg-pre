@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 sitename="RG"
 fname=$(ls "$1" \[$sitename\])
 

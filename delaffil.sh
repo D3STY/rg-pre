@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 glftpd_conf="/etc/glftpd.conf"
 base_pre_path="/site/PRE"
 
