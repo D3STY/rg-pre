@@ -22,80 +22,19 @@
 # $1 = The directory to pre.
 # $2 = Section.
 #
-# Logging to glftpd.log (for the sitebot) is being done
-# in the following format:
-# PRE: <target_path/dirname> <group> <pre_info> <files_num> <dir_size> <user>
+# Logging to glftpd.log (for the sitebot) is being done in the following format:
+# PRE: <target_path/dirname> <group> <section> <files_num> <dir_size> <user> <genre>
 
+# Check if .conf file exist, source if it does
+pre_conf="$(dirname "$0")/$(basename -s '.sh' "$0").conf"
+if [ -s "$pre_conf" ]; then
+	. "$pre_conf" || { echo "[ERROR] could not load $pre_conf"; exit 1; }
+fi
 
-# Short site name (as it appears in your zipscript)
-sitename="RG"
-
-# Location of your glftpd.conf file. It will fully work only if
-# this path is both the real path and the CHROOTED path to your
-# glftpd dir. In other words: put your glftpd.conf inside
-# /glftpd/etc dir and make a symlink to i in /etc.
-glftpd_conf="/etc/glftpd.conf"
-
-# As specified in glftpd.conf (you shouldn't usually touch this)
-datapath="/ftp-data"
-
-# This is how the dated dirs are being created in your glftpd
-# setup: day (usually mp3/0day) or week (usually musicvideos).
-# Edit these ONLY if your dates are in different format.
-
-date_0day_format=$(date +%m%d)
-date_mp3_format=$(date +%m%d)
-date_mv_format=$(date +%V)
-
-# Preing sections configuration:
-# 'section_name' is the name of the preing section. Use upper-case
-# characters only please (when you pre you can specify lower-case chars
-# and they will be upper-cased).
-# 'section_target_path' is the path the release is being transfered to.
-# 'section_script_path' is the path to the script which returns some
-# preing information. Two preing info scripts are supplied by me
-# which you can use: getmp3preinfo.sh and getmvpreinfo.sh.
-# These scripts will accept one parameter which is the full path
-# of the release dir (as it's located in the pre dir). They should
-# return one text string which holds some information about the release
-# and this information will be displayed during the pre and it will
-# be also logged as <pre_info> for the sitebot. The returned information
-# can be an empty line as well. If you don't want to specify a script
-# for some section, just set it to be an empty line.
-# Make sure you use sequential indexes starting from 0.
-
-# This is a sample config, CHANGE this according to your site setup.
-
-section_name[0]="MP3"
-section_target_path[0]="/site/MP3/$date_mp3_format"
-section_script_path[0]="/bin/getmp3preinfo.sh"
-
-section_name[1]="FLAC"
-section_target_path[1]="/site/FLAC/$date_mp3_format"
-section_script_path[1]="/bin/getmp3preinfo.sh"
-
-section_name[2]="GAMES"
-section_target_path[2]="/site/GAMES"
-section_script_path[2]=""
-
-section_name[3]="0DAY"
-section_target_path[3]="/site/0DAY/$date_0day_format"
-section_script_path[3]=""
-
-section_name[4]="MVID"
-section_target_path[4]="/site/MVID/$date_mv_format"
-section_script_path[4]="/bin/getmvpreinfo.sh"
-
-# Set this to be '1' if you want to allow the "SITE PRE <dirname>" command
-# which will pre to the default section (set below). If you set it to '0'
-# the default section preing will be disabled (This is useful if you only
-# have one preing section).
-allowdefaultsection=1
-
-# Set this one to the number of your default preing section.
-# It means that when
-defaultsection=0
-
+# Config checks
+if [ -z "$sitename" ]; then
+	echo "[ERROR] sitename is not set correctly, exiting..."; exit 1
+fi
 
 checklogfile() {
 	# Check for existence and writability of logfile.
@@ -130,7 +69,7 @@ checklogfile() {
 	done
 	echo ""
 
-	if [ $allowdefaultsection -eq 1 ]; then
+	if [ "$allowdefaultsection" -eq 1 ]; then
 		echo '|'
 		echo '| If you do not specify a section then'
 		echo "| the release will be pre´d to ${section_name[$defaultsection]}."
@@ -144,7 +83,7 @@ checklogfile() {
 }
 
 if [ $# -lt 2 ]; then
-	if [ $allowdefaultsection -eq 1 ]; then
+	if [ "$allowdefaultsection" -eq 1 ]; then
 		sect=${section_name[$defaultsection]}
 		echo "Second parameter wasn't specified, using $sect by default ..."
 	else
@@ -165,7 +104,7 @@ checklogfile "$datapath/logs/glftpd.log"
 checklogfile "$datapath/logs/dupelog"
 
 pwd=$PWD
-predirs=$(< $glftpd_conf grep privpath | awk '{print $2}')
+predirs=$(< "$glftpd_conf" grep privpath | awk '{print $2}')
 
 # Check that the user is currently in a valid pre directory.
 inpredir=0
@@ -217,8 +156,8 @@ size=$((size_k/1024))
 found=0
 index=0
 sections_num=${#section_name[@]}
-while [ $index -lt $sections_num ] && [  $found -eq 0 ]; do
-	if [ ${section_name[$index]} = "$sect" ]; then
+while [ $index -lt "$sections_num" ] && [  $found -eq 0 ]; do
+	if [ "${section_name[$index]}" = "$sect" ]; then
 		found=1
 	else
 		index=$((index+1))
@@ -246,14 +185,14 @@ if [ $found -eq 1 ]; then
 		preinfo="$sect"
 	fi
 	# Adding to dupelog
-	/bin/dupediradd "$1" $datapath >/dev/null 2>&1
+	/bin/dupediradd "$1" "$datapath" >/dev/null 2>&1
 	echo "[$sitename] Release Info: $preinfo [$sitename]"
 	# Setting the current time on the release dir
 	touch "$1"
 	# Moving the release
 	mv "$1" "$target"
 	# Putting a record in glftpd.log
-	echo "$(date "+%a %b %d %T %Y")" PRE: \""$target"/"$1"\" \""$pregrp"\" \""$preinfo"\" \""$files"\" \""$size"\" \""$USER"\" >>$datapath/logs/glftpd.log
+	echo "$(date "+%a %b %d %T %Y")" PRE: \""$target"/"$1"\" \""$pregrp"\" \""$sect"\" \""$files"\" \""$size"\" \""$preinfo"\" \""$USER"\" >>"$datapath"/logs/glftpd.log
 	echo "[$sitename] Success! Release has been pre'd. [$sitename]"
 else
 	echo "Section $sect doesn't exist. Aborting ..."
