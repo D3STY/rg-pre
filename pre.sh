@@ -146,7 +146,7 @@ checklogfile() {
 	fi
 
 	echo '|'
-	echo '| This moves a directory from a pre-dir to'first
+	echo '| This moves a directory from a pre-dir to'
 	echo '| the provided section dir, and logs it.'
 	echo '`--------------------------------------------='
 	exit 0
