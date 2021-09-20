@@ -1,5 +1,16 @@
 #! /bin/bash
 
+# Location of your glftpd.conf file, the path is CHROOTED to your glftpd dir.
+# In other words, if your glftpd dir is /glftpd then this path will probably be
+# /etc/glftpd.conf, the actual file will be /glftpd/etc/glftpd.conf and there
+# will be a symlink /etc/glftpd.conf pointing to /glftpd/etc/glftpd.conf.
+glftpd_conf="/etc/glftpd.conf"
+
+# Locations of the base pre path - if the second parameter ('pre_dir_path') won't
+# be specified during exection of this script then this path will be used as
+# the default pre path.
+base_pre_path="/site/PRE"
+
 if [ $# -ge 1 ]; then
 	if [ $# -eq 2 ]; then
 		pre_path=$2
