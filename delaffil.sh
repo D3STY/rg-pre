@@ -24,13 +24,8 @@ if [ $# -ge 1 ]; then
    else
       pre_path=$base_pre_path
    fi
-   if [ "${pre_path:1:5}" != "/site" ]; then
       if [ "${pre_path:1:1}" != "/" ]; then
          pre_path="/site/$pre_path"
-      else
-         pre_path="/site$pre_path"
-      fi
-   fi
    echo "Removing $1 ..."
    echo "Trying to remove $pre_path/$1 from the $glftpd_conf file ..."
    lines_num=$(< $glftpd_conf wc -l)
@@ -45,4 +40,5 @@ if [ $# -ge 1 ]; then
    fi
 else
    echo "Syntax: SITE DELAFFIL <group> [pre_dr_path]"
+fi
 fi
