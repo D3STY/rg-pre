@@ -224,7 +224,7 @@ while [ $index -lt $sections_num ] && [  $found -eq 0 ]; do
 		index=$((index+1))
 	fi
 done
-
+ 
 if [ $found -eq 1 ]; then
 	target=${section_target_path[$index]}
 	preinfo_script=${section_script_path[$index]}
