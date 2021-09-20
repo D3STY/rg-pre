@@ -14,9 +14,9 @@ sitename="RG"
 ### CODE ##
 
 genre="Unknown"
-cd $1
+cd "$1" || exit
 for file in *.nfo; do
-	if [ $file != "*.nfo" ]; then
+	if [ "$file" != "*.nfo" ]; then
 		tempgenre=$(/bin/getmvpreinfo "$1" "$file")
 		if [ $genre = "Unknown" ]; then
 			genre=$tempgenre

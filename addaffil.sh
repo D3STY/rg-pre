@@ -24,19 +24,19 @@ if [ $# -ge 1 ]; then
 	else
 		pre_path=$base_pre_path
 	fi
-	if [ $(expr substr $pre_path 1 5) != "/site" ]; then
-		if [ $(expr substr $pre_path 1 1) != "/" ]; then
+	if [ "${pre_path:1:5}" != "/site" ]; then
+		if [ "${pre_path:1:1}" != "/" ]; then
 			pre_path="/site/$pre_path"
 		else
 			pre_path="/site$pre_path"
 		fi
 	fi
 	echo "Adding $1 ..."
-	if [ $(grep "privpath $pre_path" $glftpd_conf | grep -c $1) -gt 0 ]; then
+	if [ "$(grep "privpath $pre_path" $glftpd_conf | grep -c "$1")" -gt 0 ]; then
 		echo "The $pre_path/$1 line already exists in $glftpd_conf."
 	else
 		echo "Trying to add $pre_path/$1 to $glftpd_conf ..."
-		/bin/addaffil $glftpd_conf $1 $pre_path
+		/bin/addaffil $glftpd_conf "$1" $pre_path
 	fi
 	if [ -d "$pre_path/$1" ]; then
 		echo "The dir $pre_path/$1 already exists, making sure it has permissions set to 777 ..."
@@ -49,8 +49,8 @@ if [ $# -ge 1 ]; then
 		if [ $mkdirres -ne 0 ]; then
 			echo "Error! Couldn't create $pre_path/$1."
 			echo "Removing the $pre_path/$1 dir from $glftpd_conf ..."
-			lines_num=$(cat $glftpd_conf | wc -l)
-			/bin/delaffil $glftpd_conf $1 $pre_path $lines_num
+			lines_num=$(< $glftpd_conf wc -l)
+			/bin/delaffil $glftpd_conf "$1" $pre_path "$lines_num"
 			echo "Group $1 wasn't set as an affil and it can't pre."
 		else
 			echo "The $pre_path/$1 dir has been created."

@@ -15,11 +15,11 @@ glftpd_conf="/etc/glftpd.conf"
 
 ### CODE ###
 
-privpaths=$(cat $glftpd_conf | grep privpath | grep "=STAFFPRE" | awk '{print $2}')
+privpaths=$(< $glftpd_conf grep privpath | awk '{print $2}')
 
 predirs=""
 for path in $privpaths; do
-	predirs="$predirs $(basename $path)"
+	predirs="$predirs $(basename "$path")"
 done
-echo $predirs
+echo "$predirs"
 exit 0

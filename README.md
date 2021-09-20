@@ -161,17 +161,15 @@ I recommend you to do the following in your glftpd.conf:
 
    2. To your procedures section add the following procedure:
 
-   #################################################################################
-
    # POST AFFILS
 
-   #################################################################################
+   ```
    proc affils {nick uhost hand chan args} {
    global cmdpre sitename
    set output [exec /glftpd/bin/listaffils.sh]
    putserv "PRIVMSG $chan :-$sitename- \002(AFFILIATES)\002 - $output"
    }
-   #################################################################################
+   ```
    You will need to edit this a bit if your glftpd's bin dir isn't /glftpd/bin and you
    want the announce to look a bit different.
 

@@ -24,8 +24,8 @@ if [ $# -ge 1 ]; then
    else
       pre_path=$base_pre_path
    fi
-   if [ $(expr substr $pre_path 1 5) != "/site" ]; then
-      if [ $(expr substr $pre_path 1 1) != "/" ]; then
+   if [ "${pre_path:1:5}" != "/site" ]; then
+      if [ "${pre_path:1:1}" != "/" ]; then
          pre_path="/site/$pre_path"
       else
          pre_path="/site$pre_path"
@@ -33,10 +33,10 @@ if [ $# -ge 1 ]; then
    fi
    echo "Removing $1 ..."
    echo "Trying to remove $pre_path/$1 from the $glftpd_conf file ..."
-   lines_num=$(cat $glftpd_conf | wc -l)
-   /bin/delaffil $glftpd_conf $1 $pre_path $lines_num
+   lines_num=$(< $glftpd_conf wc -l)
+   /bin/delaffil $glftpd_conf "$1" $pre_path "$lines_num"
    if [ -d "$pre_path/$1" ]; then
-      rm -rf "$pre_path/$1"
+      rm -rf "${pre_path:?}/""$1"
       echo "Success! $pre_path/$1 has been removed."
       echo "Group $1 is NO LONGER affiled on this site!!!"
    else

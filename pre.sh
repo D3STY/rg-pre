@@ -78,7 +78,7 @@ section_script_path[0]="/bin/getmp3preinfo.sh"
 
 section_name[1]="FLAC"
 section_target_path[1]="/site/FLAC/$date_mp3_format"
-section_script_path[1]="/bin/getmp3preinfo.sh"""
+section_script_path[1]="/bin/getmp3preinfo.sh"
 
 section_name[2]="GAMES"
 section_target_path[2]="/site/GAMES"
@@ -86,7 +86,7 @@ section_script_path[2]=""
 
 section_name[3]="0DAY"
 section_target_path[3]="/site/0DAY/$date_0day_format"
-section_target_script[3]=""
+section_script_path[3]=""
 
 section_name[4]="MVID"
 section_target_path[4]="/site/MVID/$date_mv_format"
@@ -108,16 +108,16 @@ defaultsection=0
 
 checklogfile() {
 	# Check for existence and writability of logfile.
-	if [ -f $1 ]; then
-		[ -w $1 ] || {
+	if [ -f "$1" ]; then
+		[ -w "$1" ] || {
 			echo "Logfile $1 exists, but"
 			echo "is not writable by you. Please verify its permissions."
 			exit 1
 		}
 	else
-		if [ -w "$(dirname $1)" ]; then
-			touch $1
-			chmod 666 $1
+		if [ -w "$(dirname "$1")" ]; then
+			touch "$1"
+			chmod 666 "$1"
 		else
 			echo "Logfile $1 does not exist,"
 			echo "and you do not have permission to create it."
@@ -134,7 +134,7 @@ checklogfile() {
 
 	echo '| Valid sections:'
 	echo -n '| '
-	for sect in ${section_name[@]}; do
+	for sect in "${section_name[@]}"; do
 		echo -n "$sect "
 	done
 	echo ""
@@ -165,7 +165,7 @@ else
 fi
 
 # Converting section to uppercase
-sect=$(echo $sect | tr [a-z] [A-Z])
+sect=$(echo "$sect" | tr '[:upper:]' '[:lower:]')
 
 # Check for existence and writability of the glftpd.
 checklogfile "$datapath/logs/glftpd.log"
@@ -174,7 +174,7 @@ checklogfile "$datapath/logs/glftpd.log"
 checklogfile "$datapath/logs/dupelog"
 
 pwd=$PWD
-predirs=$(cat $glftpd_conf | grep privpath | grep "=STAFFPRE" | awk '{print $2}')
+predirs=$(< $glftpd_conf grep privpath "=STAFFPRE" | awk '{print $2}')
 
 # Check that the user is currently in a valid pre directory.
 inpredir=0
@@ -196,7 +196,7 @@ done
 	exit 1
 }
 (
-	cd $1
+	cd "$1"
 	pwd
 ) | grep "$pwd/" >/dev/null || {
 	echo "The specified dir does not reside below the pre dir you are in."
@@ -218,19 +218,19 @@ done
 	exit 1
 }
 
-pregrp=$(basename $pwd)
+pregrp=$(basename "$pwd")
 # The -sk is used instead of -sm for BSD and Solaris compartibility
-size_k=$(($(du -sk $1 | cut -f1)))
-size=$(expr $size_k / 1024)
+size_k=$(($(du -sk "$1" | cut -f1)))
+size=$((size_k/1024))
 
 found=0
 index=0
 sections_num=${#section_name[@]}
-while [ $index -lt $sections_num -a $found -eq 0 ]; do
+while [ $index -lt $sections_num ] && [  $found -eq 0 ]; do
 	if [ ${section_name[$index]} = "$sect" ]; then
 		found=1
 	else
-		index=$(expr $index + 1)
+		index=$((index+1))
 	fi
 done
 
@@ -243,12 +243,12 @@ if [ $found -eq 1 ]; then
 		exit 1
 	}
 	# Check that another release by the current name doesn't already exist
-	[ -d "$target/$(basename $1)" ] && {
-		echo "$(basename $1) already exists in today's dir!"
+	[ -d "$target/$(basename "$1")" ] && {
+		echo "$(basename "$1") already exists in today's dir!"
 		exit 1
 	}
 	# Calculating different values
-	files=$(find "$1" | grep -cE "*\.[[:alnum:]]{3}$")
+	files=$(find "$1" | grep -cE "\.[[:alnum:]]{3}$")
 	if [ "$preinfo_script" != "" ]; then
 		preinfo=$($preinfo_script "$pwd/$1")
 	else
@@ -262,7 +262,7 @@ if [ $found -eq 1 ]; then
 	# Moving the release
 	mv "$1" "$target"
 	# Putting a record in glftpd.log
-	echo $(date "+%a %b %d %T %Y") PRE: \"$target/$1\" \"$USER\" \"$pregrp\" \"$files\" \"$size\" \"$preinfo\" >>$datapath/logs/glftpd.log
+	echo "$(date "+%a %b %d %T %Y")" PRE: \""$target"/"$1"\" \""$USER"\" \""$pregrp"\" \""$files"\" \""$size"\" \""$preinfo"\" >>$datapath/logs/glftpd.log
 	echo "[$sitename] Success! Release has been pre'd. [$sitename]"
 else
 	echo "Section $sect doesn't exist. Aborting ..."
