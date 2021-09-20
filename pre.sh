@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 #
 #
 # Notes:
@@ -156,7 +156,7 @@ else
 fi
 
 # Converting section to uppercase
-sect=$(echo "$sect" | tr '[:upper:]' '[:lower:]')
+sect=$(echo "$sect" | tr '[:lower:]' '[:upper:]')
 
 # Check for existence and writability of the glftpd.
 checklogfile "$datapath/logs/glftpd.log"
@@ -165,7 +165,7 @@ checklogfile "$datapath/logs/glftpd.log"
 checklogfile "$datapath/logs/dupelog"
 
 pwd=$PWD
-predirs=$(< $glftpd_conf grep privpath "=STAFFPRE" | awk '{print $2}')
+predirs=$(< $glftpd_conf grep privpath | awk '{print $2}')
 
 # Check that the user is currently in a valid pre directory.
 inpredir=0
