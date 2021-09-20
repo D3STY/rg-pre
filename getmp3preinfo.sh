@@ -1,5 +1,5 @@
 #!/bin/bash
-sitename="RheinGold"
+sitename=""
 fname=$(ls "$1"/*$sitename*)
 
 second=$(echo "$fname" | awk -F" - COMPLETE - " '{ print $2 }')
