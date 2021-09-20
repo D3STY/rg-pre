@@ -1,17 +1,5 @@
 #! /bin/bash
-#
-# A script to get the genre from musicvideos release before they are pre'ed
-# on a site using mvpack script by eur0dance. Ths scriptis  for dark0n3's
-# zipscript-c/project-zs, done by eur0dance.
-# Version 1.0
-#
-# $1 - path to the release dir
-
-### CONFIG ###
-
 sitename="RG"
-
-### CODE ##
 
 genre="Unknown"
 cd "$1" || exit

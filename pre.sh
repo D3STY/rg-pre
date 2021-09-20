@@ -1,10 +1,5 @@
 #! /bin/bash
 #
-# This is a pre script by eur0dance which comes as a part
-# of eur0-pre-system. Was inspired by early and unreleased
-# pre-script by Jehsom. This script is far more advanced than
-# jehsom's script and the only thing left is basicly the idea :)
-# Version 1.0
 #
 # Notes:
 # 1) Make sure that all pre dir names are exactly the same as the
@@ -31,7 +26,6 @@
 # in the following format:
 # PRE: <target_path/dirname> <user> <group> <files_num> <dir_size <pre_info>
 
-### CONFIG ###
 
 # Short site name (as it appears in your zipscript)
 sitename="RG"
@@ -102,9 +96,6 @@ allowdefaultsection=1
 # It means that when
 defaultsection=0
 
-### CODE ###
-
-## Functions and Procedures ##
 
 checklogfile() {
 	# Check for existence and writability of logfile.
