@@ -24,7 +24,7 @@
 #
 # Logging to glftpd.log (for the sitebot) is being done
 # in the following format:
-# PRE: <target_path/dirname> <user> <group> <files_num> <dir_size <pre_info>
+# PRE: <target_path/dirname> <group> <pre_info> <files_num> <dir_size> <user>
 
 
 # Short site name (as it appears in your zipscript)
@@ -120,7 +120,7 @@ checklogfile() {
 ## Main block ##
 
 { [ -z "$1" ]; } && {
-	echo ",--------------------------------------------="
+	echo ",------------------------------=[- RG-pre -]=--."
 	echo '| Usage: SITE PRE <dirname> <section>'
 
 	echo '| Valid sections:'
@@ -133,13 +133,13 @@ checklogfile() {
 	if [ $allowdefaultsection -eq 1 ]; then
 		echo '|'
 		echo '| If you do not specify a section then'
-		echo "| the release will be pre-ed to ${section_name[$defaultsection]}."
+		echo "| the release will be pre´d to ${section_name[$defaultsection]}."
 	fi
 
 	echo '|'
 	echo '| This moves a directory from a pre-dir to'
 	echo '| the provided section dir, and logs it.'
-	echo '`--------------------------------------------='
+	echo '`---------------------------------------------'
 	exit 0
 }
 
@@ -253,7 +253,7 @@ if [ $found -eq 1 ]; then
 	# Moving the release
 	mv "$1" "$target"
 	# Putting a record in glftpd.log
-	echo "$(date "+%a %b %d %T %Y")" PRE: \""$target"/"$1"\" \""$USER"\" \""$pregrp"\" \""$files"\" \""$size"\" \""$preinfo"\" >>$datapath/logs/glftpd.log
+	echo "$(date "+%a %b %d %T %Y")" PRE: \""$target"/"$1"\" \""$pregrp"\" \""$preinfo"\" \""$files"\" \""$size"\" \""$USER"\" >>$datapath/logs/glftpd.log
 	echo "[$sitename] Success! Release has been pre'd. [$sitename]"
 else
 	echo "Section $sect doesn't exist. Aborting ..."
