@@ -1,22 +1,3 @@
-<<<<<<< HEAD
-# rg-pre
-
-- base is the eur0-pre-system
-- Makefiles updated
-- updated all scripts
-
-## Documentation:
-
-## TODO:
-
-### rg-pre
-- [X] Debian 11 Support
-- [X] ShellCheck
-- [ ] Config File
-
-### Documentation
-- [ ] Coming soon....
-=======
 ---
 title: 're-pre'
 disqus: hackmd
@@ -105,4 +86,3 @@ site delaffil ABC
 200- Group ABC is NO LONGER affiled on this site!!
 200 Command Successful.
 ```
->>>>>>> f1701ff (README)
