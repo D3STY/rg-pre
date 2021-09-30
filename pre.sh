@@ -24,7 +24,7 @@ log() {
 # Config checks
 if [ -z "$sitename" ]; then
 	echo "[ERROR] sitename is not set correctly, exiting..."; exit 1
-	log "Sitename is not set correctly" "ERROR"
+	log "Sitename was not set correctly" "ERROR"
 fi
 
 checklogfile() {
@@ -81,11 +81,14 @@ if [ $# -lt 2 ]; then
 	else
 		echo "Second parameter wasn't specified and there is no default section defined. Aborting ...";
 		log "Section wasn't specified and auto / default section in not definied" "ERROR";
-		exit 0
+		exit 1
 	fi
 else
 	sect=$2
-	log "Section ""$2""" "INFO"
+	# Converting section to uppercase
+	sect=$(echo "$sect" | tr '[:lower:]' '[:upper:]')
+	log "Release ""$1""" "INFO"
+	log "Section ""$sect""" "INFO"
 fi
 
 # Converting section to uppercase
@@ -121,7 +124,7 @@ done
 # Check that the specified pre-release dir does in fact exist.
 [ -d "$1" ] || {
 	echo "\"$1\" is not a valid directory."
-	log "Selected ""$1"" for PRE" "INFO"
+	log "Invalid dir ""$1"" for PRE" "INFO"
 	exit 1""
 }
 (
@@ -129,7 +132,7 @@ done
 	pwd
 ) | grep "$pwd/" >/dev/null || {
 	echo "The specified dir does not reside below the pre dir you are in."
-	log "The specified dir does not reside below the pre dir you are in." "ERROR"
+	log "The specified dir does not reside below the pre dir." "ERROR"
 	exit 1
 }
 
@@ -167,6 +170,13 @@ done
 if [ $found -eq 1 ]; then
 	target=${section_target_path[$index]}
 	preinfo_script=${section_script_path[$index]}
+		# Fix ABOOK pre in MP3
+	if [ "${sect}" = "MP3" ]; then
+		case "{$1^^}" in
+			*\-AUDIOBOOK\-*|*\-ABOOK\-*) sect="ABOOK-DE" target=${section_target_path[2]};;
+			*) log "Route pre to ${sect}" "WARN";;
+		esac
+	fi
 	# Check if the preing dir actually exist
 	[ -d "$target" ] || {
 		echo "Target dir for preing doesn't exist!"
@@ -187,13 +197,6 @@ if [ $found -eq 1 ]; then
 		preinfo="$sect"
 	fi
 
-	# Fix ABOOK pre in MP3
-	if [ "${sect}" = "MP3" ]; then
-		case $target/"{$1^^}" in
-			*\-AUDIOBOOK\-*|*\-ABOOK\-*) sect="ABOOK-DE";;
-			*) log "Route pre to ${sect}" "WARN";;
-		esac
-	fi
 
 	# Adding to dupelog
 	/bin/dupediradd "$1" "$datapath" >/dev/null 2>&1

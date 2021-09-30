@@ -3,6 +3,7 @@ RM = rm -f
 CP = cp
 CHMOD = chmod
 GLPATH = /glftpd/bin
+ETCPATH = /glftpd/etc
 MAKE = make
 
 CCFLAGS = -O2 -Wall
@@ -23,7 +24,7 @@ install:
 	${CP} delaffil ${GLPATH}
 	${CP} delaffil.sh ${GLPATH}
 	${CP} pre.sh ${GLPATH}
-	${CP} pre.conf ${GLPATH}
+	${CP} rg-pre.conf ${ETCPATH}
 	${CP} getmp3preinfo.sh ${GLPATH}
 	${CP} getmvpreinfo.sh ${GLPATH}
 	${CHMOD} +x ${GLPATH}/addaffil
