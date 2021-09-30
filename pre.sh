@@ -1,22 +1,6 @@
 #!/bin/bash
 #
 #
-# Notes:
-# 1) Make sure that all pre dir names are exactly the same as the
-#    group names they are linked to.
-# 2) The following bins are required in glftpd's bin dir:
-#    sed, echo, touch, chmod, pwd, grep, basename, date, mv, bash,
-#    dupediradd, find
-# 3) If you don't have it already compiled in your glftpd's bin dir,
-#    you must compile glftpd/bin/sources/dupediradd.c as
-#    gfltpd/bin/dupediradd, then chmod 666 ftp-data/logs/dupelog
-#    and chmod 666 ftp-data/logs/glftpd.log so they can be written
-#    to by all users when they pre.
-# 4) Make sure glftpd/dev/null is world writable or you will
-#    get strange errors.
-# 5) All paths specified in the configuration section of this script
-#    should be chrooted to glftpd dir. In other words, you specify
-#    /ftp-data and not /glftpd/ftp-data or /jail/glftpd/ftp-data.
 #
 # Command parameters for this script as they are being passed by glftpd:
 # $1 = The directory to pre.
@@ -25,15 +9,25 @@
 # Logging to glftpd.log (for the sitebot) is being done in the following format:
 # PRE: <target_path/dirname> <group> <section> <files_num> <dir_size> <user> <genre>
 
+declare -A loglevels=([DEBUG]=0 [INFO]=1 [WARN]=2 [ERROR]=3)
+script_logging_level="INFO"
+log() {
+	if [[ "${loglevels[$2]}" != "" && ${loglevels[$2]} -ge ${loglevels[$script_logging_level]} ]]; then
+		echo "$(date '+%Y-%m-%d %H:%M:%S') [PRE] ${2}: ${pregrp} - ${1}"  >>"$datapath"/logs/rg-pre.log
+	fi
+}
+
 # Check if .conf file exist, source if it does
 pre_conf="$(dirname "$0")/$(basename -s '.sh' "$0").conf"
 if [ -s "$pre_conf" ]; then
 	. "$pre_conf" || { echo "[ERROR] could not load $pre_conf"; exit 1; }
+	log "Could not load "$pre_conf"" "ERROR"
 fi
 
 # Config checks
 if [ -z "$sitename" ]; then
 	echo "[ERROR] sitename is not set correctly, exiting..."; exit 1
+	log "Sitename is not set correctly" "ERROR"
 fi
 
 checklogfile() {
@@ -86,16 +80,22 @@ if [ $# -lt 2 ]; then
 	if [ "$allowdefaultsection" -eq 1 ]; then
 		sect=${section_name[$defaultsection]}
 		echo "Second parameter wasn't specified, using $sect by default ..."
+		log "No Section specified, using $sect in automode" "INFO"
 	else
-		echo "Second parameter wasn't specified and there is no default section defined. Aborting ..."
+		echo "Second parameter wasn't specified and there is no default section defined. Aborting ...";
+		log "Section wasn't specified and auto / default section in not definied" "ERROR";
 		exit 0
 	fi
 else
 	sect=$2
+	log "Section "$2"" "INFO"
 fi
 
 # Converting section to uppercase
 sect=$(echo "$sect" | tr '[:lower:]' '[:upper:]')
+
+# Check for existence and writability of the rg-pre.
+checklogfile "$datapath/logs/rg-pre.log"
 
 # Check for existence and writability of the glftpd.
 checklogfile "$datapath/logs/glftpd.log"
@@ -117,34 +117,37 @@ done
 [ "$inpredir" = "0" ] && {
 	echo "Please enter a pre dir before running SITE PRE."
 	echo "Current dir is $pwd."
+	log "User not inside a valid PRE dir" "WARN"
 	exit 0
 }
 
 # Check that the specified pre-release dir does in fact exist.
 [ -d "$1" ] || {
 	echo "\"$1\" is not a valid directory."
+	log "Selected "$1" for PRE" "INFO"
 	exit 1
 }
 (
-	cd "$1"
+	cd """$1"""
 	pwd
 ) | grep "$pwd/" >/dev/null || {
 	echo "The specified dir does not reside below the pre dir you are in."
+	log "The specified dir does not reside below the pre dir you are in." "ERROR"
 	exit 1
 }
 
 # Check that the current directory is writable so we can move stuff from it.
-[ -w "$pwd" ] || {
+[ -w """$pwd""" ] || {
 	echo "You do not have write permissions to the current directory,"
-	echo "$pwd, so you can't pre here."
+	log "No write permissions for the current directory" "ERROR"
 	exit 1
 }
 
 # Check that we actually have write permission to the rls dir, so we
 # can move it properly
 [ -w "$1" ] || {
-	echo "You do not have write permissions to the release dir specified,"
-	echo "\"$1\"."
+	echo "You do not have write permissions to the release dir specified"
+	log "No write permissions to the release dir - "$1"" "ERROR"
 	exit 1
 }
 
@@ -170,11 +173,13 @@ if [ $found -eq 1 ]; then
 	# Check if the preing dir actually exist
 	[ -d "$target" ] || {
 		echo "Target dir for preing doesn't exist!"
+		log "Section for pre doesent exist!" "ERROR"
 		exit 1
 	}
 	# Check that another release by the current name doesn't already exist
 	[ -d "$target/$(basename "$1")" ] && {
 		echo "$(basename "$1") already exists in today's dir!"
+		log "Dupe $(basename "$1")" "ERROR"
 		exit 1
 	}
 	# Calculating different values
@@ -184,17 +189,36 @@ if [ $found -eq 1 ]; then
 	else
 		preinfo="$sect"
 	fi
+
+	# Fix ABOOK pre in MP3
+	if [ "${sect}" = "MP3" ]; then
+		case $target/"{$1^^}" in
+			*\-AUDIOBOOK\-*|*\-ABOOK\-*) sect="ABOOK-DE";;
+			*) log "Route pre to ${sect}" "WARN";;
+		esac
+	fi
+
 	# Adding to dupelog
 	/bin/dupediradd "$1" "$datapath" >/dev/null 2>&1
 	echo "[$sitename] Release Info: $preinfo [$sitename]"
+	log "Release Info: $preinfo" "INFO"
 	# Setting the current time on the release dir
 	touch "$1"
 	# Moving the release
 	mv "$1" "$target"
 	# Putting a record in glftpd.log
-	echo "$(date "+%a %b %d %T %Y")" PRE: \""$target"/"$1"\" \""$pregrp"\" \""$sect"\" \""$files"\" \""$size"\" \""$preinfo"\" \""$USER"\" >>"$datapath"/logs/glftpd.log
+	echo "$(date '+%Y-%m-%d %H:%M:%S')" PRE: \""$target""/$1"\" \""$pregrp""\" \"$sect"\" \""$files""\" \"$size"\" \""$preinfo""\" \"$USER"\" >>"$datapath"/logs/glftpd.log
+	log "Putting a record in glftpd.log" "INFO"
+	log "RLS: "$target"/"$1""  "INFO"
+	log "GRP: \"$pregrp"\""" "INFO"
+	log "SEC: \"$sect"\" "INFO"
+	log "iNFO: \"$preinfo"\""" "INFO"
+	log "F\"$files"\"\"$size"\"MB" "INFO"
+	log "USR: \"$USER"\" "INFO"
+	log "Release has been pre'd on $sitename" "INFO"
 	echo "[$sitename] Success! Release has been pre'd. [$sitename]"
 else
 	echo "Section $sect doesn't exist. Aborting ..."
+	log "Invalid Section "$sect"" "ERROR"
 	exit 1
 fi
