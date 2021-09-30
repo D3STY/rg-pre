@@ -1,5 +1,4 @@
 #!/bin/bash
-# shellcheck source=/home/mutiny/rg-pre/
 # Check if .conf file exist, source if it does
 pre_conf="$(dirname "$0")/pre.conf" 
 if [ -s "$pre_conf" ]; then
