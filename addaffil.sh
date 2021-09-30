@@ -1,8 +1,9 @@
 #!/bin/bash
-
+# shellcheck source=/home/mutiny/rg-pre/
 # Check if .conf file exist, source if it does
-pre_conf="$(dirname "$0")/pre.conf"
+pre_conf="$(dirname "$0")/pre.conf" 
 if [ -s "$pre_conf" ]; then
+# shellcheck source=pre.conf
 	. "$pre_conf" || { echo "[ERROR] could not load $pre_conf"; exit 1; }
 fi
 
@@ -10,7 +11,7 @@ declare -A loglevels=([DEBUG]=0 [INFO]=1 [WARN]=2 [ERROR]=3)
 script_logging_level="INFO"
 log() {
 	if [[ "${loglevels[$2]}" != "" && ${loglevels[$2]} -ge ${loglevels[$script_logging_level]} ]]; then
-		echo "$(date '+%Y-%m-%d %H:%M:%S') [PRE] ${2}: ADDAFFIL - ${1}"  >>"$datapath"/logs/rg-pre.log
+		echo "$(date '+%Y-%m-%d %H:%M:%S') [PRE] ${2}: ADDAFFIL - ${1}"  >>"$logpath"/rg-pre.log
 	fi
 }
 

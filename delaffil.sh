@@ -2,17 +2,17 @@
 
 declare -A loglevels=([DEBUG]=0 [INFO]=1 [WARN]=2 [ERROR]=3)
 script_logging_level="INFO"
-log() {
-	if [[ "${loglevels[$2]}" != "" && ${loglevels[$2]} -ge ${loglevels[$script_logging_level]} ]]; then
-		echo "$(date '+%Y-%m-%d %H:%M:%S') [PRE] ${2}: DELAFFIL - ${1}"  >>"$datapath"/logs/rg-pre.log
-	fi
-}
-
 # Check if .conf file exist, source if it does
 pre_conf="$(dirname "$0")/pre.conf"
 if [ -s "$pre_conf" ]; then
 	. "$pre_conf" || { echo "[ERROR] could not load $pre_conf"; exit 1; }
 fi
+
+log() {
+	if [[ "${loglevels[$2]}" != "" && ${loglevels[$2]} -ge ${loglevels[$script_logging_level]} ]]; then
+		echo "$(date '+%Y-%m-%d %H:%M:%S') [PRE] ${2}: DELAFFIL - ${1}"  >>"$logpath"/rg-pre.log
+	fi
+}
 
 if [ $# -ge 1 ]; then
    if [ $# -eq 2 ]; then

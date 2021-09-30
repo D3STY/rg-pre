@@ -8,22 +8,19 @@
 #
 # Logging to glftpd.log (for the sitebot) is being done in the following format:
 # PRE: <target_path/dirname> <group> <section> <files_num> <dir_size> <user> <genre>
+# Check if .conf file exist, source if it does
+pre_conf="$(dirname "$0")/$(basename -s '.sh' "$0").conf"
+if [ -s "$pre_conf" ]; then
+	. "$pre_conf" || { echo "[ERROR] could not load $pre_conf"; exit 1; }
+fi
 
 declare -A loglevels=([DEBUG]=0 [INFO]=1 [WARN]=2 [ERROR]=3)
 script_logging_level="INFO"
 log() {
 	if [[ "${loglevels[$2]}" != "" && ${loglevels[$2]} -ge ${loglevels[$script_logging_level]} ]]; then
-		echo "$(date '+%Y-%m-%d %H:%M:%S') [PRE] ${2}: ${pregrp} - ${1}"  >>"$datapath"/logs/rg-pre.log
+		echo "$(date '+%Y-%m-%d %H:%M:%S') [PRE] ${2}: ${pregrp} - ${1}"  >>"$logpath"/rg-pre.log
 	fi
 }
-
-# Check if .conf file exist, source if it does
-pre_conf="$(dirname "$0")/$(basename -s '.sh' "$0").conf"
-if [ -s "$pre_conf" ]; then
-	. "$pre_conf" || { echo "[ERROR] could not load $pre_conf"; exit 1; }
-	log "Could not load "$pre_conf"" "ERROR"
-fi
-
 # Config checks
 if [ -z "$sitename" ]; then
 	echo "[ERROR] sitename is not set correctly, exiting..."; exit 1
@@ -88,7 +85,7 @@ if [ $# -lt 2 ]; then
 	fi
 else
 	sect=$2
-	log "Section "$2"" "INFO"
+	log "Section ""$2""" "INFO"
 fi
 
 # Converting section to uppercase
@@ -117,15 +114,15 @@ done
 [ "$inpredir" = "0" ] && {
 	echo "Please enter a pre dir before running SITE PRE."
 	echo "Current dir is $pwd."
-	log "User not inside a valid PRE dir" "WARN"
-	exit 0
+	log ""$USER" not inside a valid PRE dir - "$PWD"" "ERROR"
+	exit 1
 }
 
 # Check that the specified pre-release dir does in fact exist.
 [ -d "$1" ] || {
 	echo "\"$1\" is not a valid directory."
-	log "Selected "$1" for PRE" "INFO"
-	exit 1
+	log "Selected ""$1"" for PRE" "INFO"
+	exit 1""
 }
 (
 	cd """$1"""
@@ -147,7 +144,7 @@ done
 # can move it properly
 [ -w "$1" ] || {
 	echo "You do not have write permissions to the release dir specified"
-	log "No write permissions to the release dir - "$1"" "ERROR"
+	log "No write permissions to the release dir - ""$1" "ERROR"
 	exit 1
 }
 
@@ -201,7 +198,7 @@ if [ $found -eq 1 ]; then
 	# Adding to dupelog
 	/bin/dupediradd "$1" "$datapath" >/dev/null 2>&1
 	echo "[$sitename] Release Info: $preinfo [$sitename]"
-	log "Release Info: $preinfo" "INFO"
+	log "Release Info: "$preinfo"" "INFO"
 	# Setting the current time on the release dir
 	touch "$1"
 	# Moving the release
@@ -209,16 +206,16 @@ if [ $found -eq 1 ]; then
 	# Putting a record in glftpd.log
 	echo "$(date '+%Y-%m-%d %H:%M:%S')" PRE: \""$target""/$1"\" \""$pregrp""\" \"$sect"\" \""$files""\" \"$size"\" \""$preinfo""\" \"$USER"\" >>"$datapath"/logs/glftpd.log
 	log "Putting a record in glftpd.log" "INFO"
-	log "RLS: "$target"/"$1""  "INFO"
-	log "GRP: \"$pregrp"\""" "INFO"
-	log "SEC: \"$sect"\" "INFO"
-	log "iNFO: \"$preinfo"\""" "INFO"
-	log "F\"$files"\"\"$size"\"MB" "INFO"
-	log "USR: \"$USER"\" "INFO"
+	log "RLS: ""$target"""/""$1""  "INFO"
+	log "GRP: "$pregrp"" "INFO"
+	log "SEC: "$sect"" "INFO"
+	log "iNFO: "$preinfo"" "INFO"
+	log "F"$files""$size""MB"" "INFO"
+	log "USR: "$USER"" "INFO"
 	log "Release has been pre'd on $sitename" "INFO"
 	echo "[$sitename] Success! Release has been pre'd. [$sitename]"
 else
 	echo "Section $sect doesn't exist. Aborting ..."
-	log "Invalid Section "$sect"" "ERROR"
+	log "Invalid Section $sect" "ERROR"
 	exit 1
 fi
