@@ -1,6 +1,6 @@
 #!/bin/bash
 # Check if .conf file exist, source if it does
-pre_conf="$(dirname "$0")/pre.conf" 
+pre_conf="$(dirname "$0")/pre.conf"
 if [ -s "$pre_conf" ]; then
 # shellcheck source=pre.conf
 	. "$pre_conf" || { echo "[ERROR] could not load $pre_conf"; exit 1; }
