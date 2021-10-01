@@ -171,8 +171,7 @@ if [ $found -eq 1 ]; then
 	if [ "${sect}" = "MP3" ]; then
 		case "{$1^^}" in
 			*\-AUDIOBOOK\-*|*\-ABOOK\-*) sect=${section_name[2]} target=${section_target_path[2]} preinfo_script=${section_script_path[2]};;
-			*) echo "Section was automatically corrected to "${sect}"";
-			*) log "Route pre to ${sect}" "WARN";;
+			*) echo "Section was automatically corrected to "${sect}"";;
 		esac
 	fi
 	# Check if the preing dir actually exist
@@ -199,7 +198,7 @@ if [ $found -eq 1 ]; then
 	# Adding to dupelog
 	/bin/dupediradd "$1" "$datapath" >/dev/null 2>&1
 	echo "[$sitename] Release Info: $preinfo [$sitename]"
-	log "Release Info: "$1" \"$sect"\" \""$files""\"\"$size"\" "INFO"
+	log "Release Info: $1 $sect $files $size" "INFO"
 	# Setting the current time on the release dir
 	touch "$1"
 	# Moving the release
