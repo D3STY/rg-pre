@@ -50,7 +50,7 @@ checklogfile() {
 ## Main block ##
 
 { [ -z "$1" ]; } && {
-	echo ",------------------------------=[- RG-pre -]=--."
+	echo ",----=[- RG-pre -]=----------------------."
 	echo '| Usage: SITE PRE <dirname> <section>'
 
 	echo '| Valid sections:'
@@ -87,21 +87,18 @@ else
 	sect=$2
 	# Converting section to uppercase
 	sect=$(echo "$sect" | tr '[:lower:]' '[:upper:]')
-	log "Release ""$1""" "INFO"
-	log "Section ""$sect""" "INFO"
+	log "Release "$1"" "INFO"
+	log "Section "$sect"" "INFO"
 fi
 
-# Converting section to uppercase
-sect=$(echo "$sect" | tr '[:lower:]' '[:upper:]')
-
 # Check for existence and writability of the rg-pre.
-checklogfile "$datapath/logs/rg-pre.log"
+checklogfile "$logpath/rg-pre.log"
 
 # Check for existence and writability of the glftpd.
-checklogfile "$datapath/logs/glftpd.log"
+checklogfile "$logpath/glftpd.log"
 
 # Check for existence and writability of the dupelog.
-checklogfile "$datapath/logs/dupelog"
+checklogfile "$logpath/dupelog"
 
 pwd=$PWD
 predirs=$(< "$glftpd_conf" grep privpath | awk '{print $2}')
@@ -124,22 +121,22 @@ done
 # Check that the specified pre-release dir does in fact exist.
 [ -d "$1" ] || {
 	echo "\"$1\" is not a valid directory."
-	log "Invalid dir ""$1"" for PRE" "INFO"
+	log "Invalid directory ""$1"" for PRE" "INFO"
 	exit 1""
 }
 (
 	cd """$1"""
 	pwd
 ) | grep "$pwd/" >/dev/null || {
-	echo "The specified dir does not reside below the pre dir you are in."
-	log "The specified dir does not reside below the pre dir." "ERROR"
+	echo "The specified directory does not reside below the pre dir you are in."
+	log "The specified directory does not reside below the pre dir." "ERROR"
 	exit 1
 }
 
 # Check that the current directory is writable so we can move stuff from it.
 [ -w """$pwd""" ] || {
 	echo "You do not have write permissions to the current directory,"
-	log "No write permissions for the current directory" "ERROR"
+	log "No write permissions for the current directory - "$pwd"" "ERROR"
 	exit 1
 }
 
@@ -147,7 +144,7 @@ done
 # can move it properly
 [ -w "$1" ] || {
 	echo "You do not have write permissions to the release dir specified"
-	log "No write permissions to the release dir - ""$1" "ERROR"
+	log "No write permissions to the release dir - "$1"" "ERROR"
 	exit 1
 }
 
@@ -173,7 +170,8 @@ if [ $found -eq 1 ]; then
 		# Fix ABOOK pre in MP3
 	if [ "${sect}" = "MP3" ]; then
 		case "{$1^^}" in
-			*\-AUDIOBOOK\-*|*\-ABOOK\-*) sect="ABOOK-DE" target=${section_target_path[2]};;
+			*\-AUDIOBOOK\-*|*\-ABOOK\-*) sect=${section_name[2]} target=${section_target_path[2]} preinfo_script=${section_script_path[2]};;
+			*) echo "Section was automatically corrected to "${sect}"";
 			*) log "Route pre to ${sect}" "WARN";;
 		esac
 	fi
@@ -201,19 +199,19 @@ if [ $found -eq 1 ]; then
 	# Adding to dupelog
 	/bin/dupediradd "$1" "$datapath" >/dev/null 2>&1
 	echo "[$sitename] Release Info: $preinfo [$sitename]"
-	log "Release Info: "$preinfo"" "INFO"
+	log "Release Info: "$1" \"$sect"\" \""$files""\"\"$size"\" "INFO"
 	# Setting the current time on the release dir
 	touch "$1"
 	# Moving the release
 	mv "$1" "$target"
 	# Putting a record in glftpd.log
-	echo "$(date '+%Y-%m-%d %H:%M:%S')" PRE: \""$target""/$1"\" \""$pregrp""\" \"$sect"\" \""$files""\" \"$size"\" \""$preinfo""\" \"$USER"\" >>"$datapath"/logs/glftpd.log
+	echo "$(date '+%a %b %d %T %Y')" PRE: \""$target""/$1"\" \""$pregrp""\" \"$sect"\" \""$files""\" \"$size"\" \""$preinfo""\" \"$USER"\" >>"$logpath"/glftpd.log
 	log "Putting a record in glftpd.log" "INFO"
-	log "RLS: ""$target"""/""$1""  "INFO"
+	log "RLS: "$target""/""$1""  "INFO"
 	log "GRP: "$pregrp"" "INFO"
 	log "SEC: "$sect"" "INFO"
 	log "iNFO: "$preinfo"" "INFO"
-	log "F"$files""$size""MB"" "INFO"
+	log "F"$files"/"$size"MB" "INFO"
 	log "USR: "$USER"" "INFO"
 	log "Release has been pre'd on $sitename" "INFO"
 	echo "[$sitename] Success! Release has been pre'd. [$sitename]"
