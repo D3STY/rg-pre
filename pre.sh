@@ -11,6 +11,7 @@
 # Check if .conf file exist, source if it does
 pre_conf="$(dirname "$0")/$(basename -s '.sh' "$0").conf"
 if [ -s "$pre_conf" ]; then
+# shellcheck source=rg-pre.conf
 	. "$pre_conf" || { echo "[ERROR] could not load $pre_conf"; exit 1; }
 fi
 
