@@ -2,18 +2,20 @@
 # Check if .conf file exist, source if it does
 pre_conf="$(dirname "$0")/pre.conf"
 if [ -s "$pre_conf" ]; then
-# shellcheck source=pre.conf
-	. "$pre_conf" || { echo "[ERROR] could not load $pre_conf"; exit 1; }
+	# shellcheck source=pre.conf
+	. "$pre_conf" || {
+		echo "[ERROR] could not load $pre_conf"
+		exit 1
+	}
 fi
 
 declare -A loglevels=([DEBUG]=0 [INFO]=1 [WARN]=2 [ERROR]=3)
 script_logging_level="INFO"
 log() {
 	if [[ "${loglevels[$2]}" != "" && ${loglevels[$2]} -ge ${loglevels[$script_logging_level]} ]]; then
-		echo "$(date '+%Y-%m-%d %H:%M:%S') [PRE] ${2}: ADDAFFIL - ${1}"  >>"$logpath"/rg-pre.log
+		echo "$(date '+%Y-%m-%d %H:%M:%S') [PRE] ${2}: ADDAFFIL - ${1}" >>"$logpath"/rg-pre.log
 	fi
 }
-
 
 if [ $# -ge 1 ]; then
 	if [ $# -eq 2 ]; then
@@ -52,12 +54,12 @@ if [ $# -ge 1 ]; then
 			echo "Error! Couldn't create $pre_path/$1."
 			echo "Removing the $pre_path/$1 dir from $glftpd_conf ..."
 			log "$pre_path/$1 couldnt be created\n GRP $1 removed from $glftpd_conf " "ERROR"
-			lines_num=$(< "$glftpd_conf" wc -l)
+			lines_num=$(wc <"$glftpd_conf" -l)
 			/bin/delaffil "$glftpd_conf" "$1" "$pre_path" "$lines_num"
 			echo "Group $1 wasn't set as an affil and it can't pre."
 			log "Unable to add $1 as AFFil on $sitename" "ERROR"
 		else
-			echo "The $pre_path/$1 dir has been created." 
+			echo "The $pre_path/$1 dir has been created."
 			echo "Group $1 can start preing now!!!"
 			log "$pre_path/$1 dir has been created and $1 is able to pre on $sitename" "INFO"
 		fi

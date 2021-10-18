@@ -11,20 +11,26 @@
 # Check if .conf file exist, source if it does
 pre_conf="$(dirname "$0")/$(basename -s '.sh' "$0").conf"
 if [ -s "$pre_conf" ]; then
-# shellcheck source=rg-pre.conf
-	. "$pre_conf" || { echo "[ERROR] could not load $pre_conf"; exit 1; }
+	# shellcheck source=rg-pre.conf
+	. "$pre_conf" || {
+		echo "[ERROR] could not load $pre_conf"
+		exit 1
+	}
 fi
+# shellcheck source=rg-pre.conf
+source $pre_conf
 
 declare -A loglevels=([DEBUG]=0 [INFO]=1 [WARN]=2 [ERROR]=3)
 script_logging_level="INFO"
 log() {
 	if [[ "${loglevels[$2]}" != "" && ${loglevels[$2]} -ge ${loglevels[$script_logging_level]} ]]; then
-		echo "$(date '+%Y-%m-%d %H:%M:%S') [PRE] ${2}: ${pregrp} - ${1}"  >>"$logpath"/rg-pre.log
+		echo "$(date '+%Y-%m-%d %H:%M:%S') [PRE] ${2}: ${pregrp} - ${1}" >>"$logpath"/rg-pre.log
 	fi
 }
 # Config checks
 if [ -z "$sitename" ]; then
-	echo "[ERROR] sitename is not set correctly, exiting..."; exit 1
+	echo "[ERROR] sitename is not set correctly, exiting..."
+	exit 1
 	log "Sitename was not set correctly" "ERROR"
 fi
 
@@ -80,8 +86,8 @@ if [ $# -lt 2 ]; then
 		echo "Second parameter wasn't specified, using $sect by default ..."
 		log "No Section specified, using $sect in automode" "INFO"
 	else
-		echo "Second parameter wasn't specified and there is no default section defined. Aborting ...";
-		log "Section wasn't specified and auto / default section in not definied" "ERROR";
+		echo "Second parameter wasn't specified and there is no default section defined. Aborting ..."
+		log "Section wasn't specified and auto / default section in not definied" "ERROR"
 		exit 1
 	fi
 else
@@ -102,7 +108,7 @@ checklogfile "$logpath/glftpd.log"
 checklogfile "$logpath/dupelog"
 
 pwd=$PWD
-predirs=$(< "$glftpd_conf" grep privpath | awk '{print $2}')
+predirs=$(grep <"$glftpd_conf" privpath | awk '{print $2}')
 
 # Check that the user is currently in a valid pre directory.
 inpredir=0
@@ -121,7 +127,7 @@ done
 
 # Check that the specified pre-release dir does in fact exist.
 [ -d "$1" ] || {
-	echo "\"$1\" is not a valid directory."
+	echo ""$1" is not a valid directory."
 	log "Invalid directory ""$1"" for PRE" "INFO"
 	exit 1""
 }
@@ -152,27 +158,27 @@ done
 pregrp=$(basename "$pwd")
 # The -sk is used instead of -sm for BSD and Solaris compartibility
 size_k=$(($(du -sk "$1" | cut -f1)))
-size=$((size_k/1024))
+size=$((size_k / 1024))
 
 found=0
 index=0
 sections_num=${#section_name[@]}
-while [ $index -lt "$sections_num" ] && [  $found -eq 0 ]; do
+while [ $index -lt "$sections_num" ] && [ $found -eq 0 ]; do
 	if [ "${section_name[$index]}" = "$sect" ]; then
 		found=1
 	else
-		index=$((index+1))
+		index=$((index + 1))
 	fi
 done
 
 if [ $found -eq 1 ]; then
 	target=${section_target_path[$index]}
 	preinfo_script=${section_script_path[$index]}
-		# Fix ABOOK pre in MP3
+	# Fix ABOOK pre in MP3
 	if [ "${sect}" = "MP3" ]; then
 		case "{$1^^}" in
-			*\-AUDIOBOOK\-*|*\-ABOOK\-*) sect=${section_name[2]} target=${section_target_path[2]} preinfo_script=${section_script_path[2]};;
-			*) echo "Section was automatically corrected to "${sect}"";;
+		*\-AUDIOBOOK\-* | *\-ABOOK\-*) sect=${section_name[2]} target=${section_target_path[2]} preinfo_script=${section_script_path[2]} ;;
+		*) echo "Section was automatically corrected to ""${sect}""" ;;
 		esac
 	fi
 	# Check if the preing dir actually exist
@@ -195,25 +201,17 @@ if [ $found -eq 1 ]; then
 		preinfo="$sect"
 	fi
 
-
 	# Adding to dupelog
 	/bin/dupediradd "$1" "$datapath" >/dev/null 2>&1
 	echo "[$sitename] Release Info: $preinfo [$sitename]"
-	log "Release Info: $1 $sect $files $size" "INFO"
 	# Setting the current time on the release dir
 	touch "$1"
 	# Moving the release
 	mv "$1" "$target"
 	# Putting a record in glftpd.log
-	echo "$(date '+%a %b %d %T %Y')" PRE: \""$target""/$1"\" \""$pregrp""\" \"$sect"\" \""$files""\" \"$size"\" \""$preinfo""\" \"$USER"\" >>"$logpath"/glftpd.log
+	echo "$(date '+%a %b %d %T %Y')" PRE: \""$target""/$1"\" \""$sect""\" \"$pregrp"\" \""$files""\" \"$preinfo"\" \""$size""\" \"$USER"\" >>"$logpath"/glftpd.log
 	log "Putting a record in glftpd.log" "INFO"
-	log "RLS: "$target""/""$1""  "INFO"
-	log "GRP: "$pregrp"" "INFO"
-	log "SEC: "$sect"" "INFO"
-	log "iNFO: "$preinfo"" "INFO"
-	log "F"$files"/"$size"MB" "INFO"
-	log "USR: "$USER"" "INFO"
-	log "Release has been pre'd on $sitename" "INFO"
+	log "\""$target""/$1"\" \""$sect""\" \"$pregrp"\" \""$files""\" \"$preinfo"\" \""$size""\" \"$USER"\"" "INFO"
 	echo "[$sitename] Success! Release has been pre'd. [$sitename]"
 else
 	echo "Section $sect doesn't exist. Aborting ..."
