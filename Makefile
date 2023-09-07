@@ -21,6 +21,8 @@ install:
 	@ echo "Copying the compiled files and conf to ${GLPATH} ..."
 	${CP} addaffil ${GLPATH}
 	${CP} addaffil.sh ${GLPATH}
+	${CP} addgrp.sh ${GLPATH}
+	${CP} delgrp.sh ${GLPATH}
 	${CP} delaffil ${GLPATH}
 	${CP} delaffil.sh ${GLPATH}
 	${CP} pre.sh ${GLPATH}
@@ -44,6 +46,8 @@ update:
 	@ echo "Copying the compiled files to ${GLPATH} ..."
 	${CP} addaffil ${GLPATH}
 	${CP} addaffil.sh ${GLPATH}
+	${CP} addgrp.sh ${GLPATH}
+	${CP} delgrp.sh ${GLPATH}
 	${CP} delaffil ${GLPATH}
 	${CP} delaffil.sh ${GLPATH}
 	${CP} pre.sh ${GLPATH}
@@ -51,8 +55,10 @@ update:
 	${CP} getmvpreinfo.sh ${GLPATH}
 	${CHMOD} +x ${GLPATH}/addaffil
 	${CHMOD} +x ${GLPATH}/delaffil
+	${CHMOD} +x ${GLPATH}/addgrp.sh
 	${CHMOD} +x ${GLPATH}/addaffil.sh
 	${CHMOD} +x ${GLPATH}/delaffil.sh
+	${CHMOD} +x ${GLPATH}/delgrp.sh
 	${CHMOD} +x ${GLPATH}/pre.sh
 	${CHMOD} +x ${GLPATH}/getmp3preinfo.sh
 	${CHMOD} +x ${GLPATH}/getmvpreinfo.sh
