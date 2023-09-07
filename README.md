@@ -12,7 +12,7 @@ __________  ________
 
 ## Introduction
 
-RG-pre is a collection of shell scripts that can be used to automate the process of pre-releasing files on a Usenet server. 
+RG-pre is a collection of shell scripts that can be used to automate the process of pre-releasing files on a File server. 
 
 ## Prerequisites
 
