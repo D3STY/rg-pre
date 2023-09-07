@@ -7,12 +7,11 @@ __________  ________
         \/        \/|__|               \/ 
 ```
 
-
 # RG-pre
 
 ## Introduction
 
-RG-pre is a collection of shell scripts that can be used to automate the process of pre-releasing files on a File server. 
+RG-pre is a collection of shell scripts that can be used to automate the process of pre-releasing files on a File server.
 
 ## Prerequisites
 
@@ -51,15 +50,18 @@ The configuration file contains the following settings:
 * `defaultsection`: The number of the default pre-release section.
 
 ## Usage
+
 The rg-pre script is used through the following command format:
 
 ```
 SITE PRE <dirname> <section>
 ```
+
 * `<dirname>` is the name of the directory that you want to pre-release.
 * `<section>` is the name of the pre-release section that you want to pre-release to.
 
 ## Sample Interactions
+
 ### Adding Affil
 
 ```
@@ -94,6 +96,7 @@ site pre Tesing_-_Testing-2003-ABC
 ```
 
 ### Removing Affil
+
 ```
 site delaffil ABC
 [PRE] Removing ABC ...
